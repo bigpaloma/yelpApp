@@ -1,0 +1,68 @@
+<% layout("./layouts/boilerplate") %>
+<% if(campground.reviews) { %>
+<% const reviews = campground.reviews %>
+<% const pluck = (arr, key) => arr.map(i => i[key]); %>
+<% const ratingsArr = pluck(reviews,"rating"); %>
+<% avgRating = ratingsArr.reduce((a, b) => a+b, 0) / ratingsArr.length %>
+<% } %>
+<% if(!avgRating) { %>
+<% avgRating = 0 %>
+<% } %>
+<div class="row">
+    <% if(campground.reviews.length !== 0) { %>
+    <div class="col-6">
+        <% } %>
+        <% if(campground.reviews.length === 0) { %>
+        <div class="col-6 offset-3">
+            <% } %>
+            <div class="card mb-3">
+                <img src="<%= campground.image%>" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title"><%= campground.name%><input class="rating ratingAvg" max="5" readonly
+                            step="0.01" style="--fill:#777;--value:<%= avgRating %>" type="range"
+                            value="<%= avgRating %>"></h5>
+                    <p class="card-text"><%= campground.description%></p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item text-muted"><%= campground.location%></li>
+                    <li class="list-group-item">$<%= campground.price%>/night</li>
+                </ul>
+                <div class="card-body">
+                    <a class="card-link btn btn-info" href="/campgrounds/<%=campground._id%>/edit">Edit</a>
+                    <a class="btn btn-warning" href="/campgrounds/<%=campground._id%>/reviews/new">Add a
+                        Review</a>
+                    <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE" method="POST">
+                        <button class="btn btn-danger">Delete</button>
+                    </form>
+                    <a class="btn btn-primary" href="/campgrounds">Back to all Campgrounds</a>
+                </div>
+                <div class="card-footer text-muted">
+                    2 days ago
+                </div>
+            </div>
+        </div>
+        <% if(campground.reviews.length !== -1) { %>
+        <div class="col-6">
+            <% const reviews = campground.reviews %>
+            <% for(review of reviews) { %>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <input class="rating" max="5" readonly step="0.01" style="--fill:#777;--value:<%= review.rating %>"
+                        type="range" value="<%= review.rating %>">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"><%= review.text %></h5>
+                    <p class="card-text">Username Placeholder</p>
+                </div>
+                <div>
+                    <form class="d-inline"
+                        action="/campgrounds/<%=campground._id%>/reviews/<%= review.id %>?_method=DELETE" method="POST">
+                        <button class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+            <% } %>
+        </div>
+        <% } %>
+    </div>
+    <%= messages %>

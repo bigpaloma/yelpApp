@@ -1,0 +1,67 @@
+<% layout("./layouts/boilerplate") %>
+<h1>Create a Listing:</h1>
+<form action="/campgrounds" method="post" class="needs-validation" novalidate>
+    <div class="my-3">
+        <label for="name" class="form-label">The name of your Campground:</label>
+        <input required type="text" name="campground[name]" class="form-control" id="name" aria-describedby="nameHelp">
+        <div id="nameHelp" class="form-text">You can choose to name the Campground yourself altough we would
+            recommend naming it as most people know it as. </div>
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            Please choose a name.
+        </div>
+    </div>
+    <div class="my-3">
+        <label for="description" class="form-label">Description:</label>
+        <textarea required type="text" name="campground[description]" class="form-control" id="description"
+            aria-describedby="descHelp"></textarea>
+        <div id="descHelp" class="form-text">Tell us something interesting about this campground</div>
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            Please write a description.
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <div class="col-6">
+            <label for="location" class="form-label">The location of your Listing:</label>
+            <input required type="text" name="campground[location]" class="form-control" id="location">
+        </div>
+        <div class="col-3">
+            <label for="location" class="form-label">The price of your Listing:</label>
+            <input required type="text" step="0.01" name="campground[price]" class="form-control" id="price">
+        </div>
+        <div class="col-3">
+            <label for="image" class="form-label">Image URL:</label>
+            <input required type="text" name="campground[image]" class="form-control" id="image">
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">List!</button>
+    <a class="btn btn-danger" href="/campgrounds">Cancel</a>
+</form>
+
+<script>
+    //for Bootstrap custom Client-Side validation
+    (() => {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        const forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
