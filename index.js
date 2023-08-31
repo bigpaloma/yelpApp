@@ -9,6 +9,10 @@ const flash = require("express-flash");
 
 const AppError = require("./errors/appError");
 
+const campgroundRoutes = require("./routes/campgrounds");
+const reviewRoutes = require("./routes/reviews");
+const secretRoutes = require("./routes/secret");
+
 var methodOverride = require('method-override')
 app.use(methodOverride('_method'))
 
@@ -32,14 +36,21 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(session({
     secret: 'secretphrase',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        maxAge: 604800000,
+        expires: Date.now() + 604800000
+    },
 }));
 
 app.use(flash());
 
-const campgroundRoutes = require("./routes/campgrounds");
-const reviewRoutes = require("./routes/reviews");
-const secretRoutes = require("./routes/secret");
+app.use((req,res,next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
 
 app.get("/", (req, res) => {
     res.render("home");
@@ -50,6 +61,7 @@ app.use("/campgrounds/:id/reviews", reviewRoutes)
 app.use("/secret", secretRoutes)
 
 app.all("*", (req, res, next) => {
+    req.flash("error", "The Page you are looking for could not be found ")
     next(new AppError("404 PAGE NOT FOUND", 404))
 })
 

@@ -27,6 +27,12 @@ app.use(session({
 
 app.use(flash());
 
+app.use((req,res,next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
+
 router.post("", validateReviewData, asyncErr(async (req, res) => {
     const { id } = req.params;
     const createdReview = await Reviews.create(req.body.review);
