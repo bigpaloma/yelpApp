@@ -1,19 +1,27 @@
 const express = require("express");
 const router = express.Router();
+const session = require("express-session");
+const app = express();
 
 const AppError = require("../errors/appError");
 
-const verifyPassword = (req, res, next) => {
-    if (req.query.pass === "chicken") {
-        next();
-    }
-    throw new AppError("", 401);
-    // throw new Error("Passphrase required!");
-    // res.send("SORRY YOU NEED A PASSWORD!")
-}
+const isLoggedIn = (req, res, next) => {
+  if (!req.session.user_id) {
+    return res.render("users/login");
+  }
+  next();
+};
 
-router.get("/", verifyPassword, (req, res) => {
-    res.send("JACKEDY JACKA JACKA!!!")
-})
+app.use(
+  session({
+    secret: "secretphrase",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+router.get("/", isLoggedIn, (req, res) => {
+  res.send("JACKEDY JACKA JACKA!!!");
+});
 
 module.exports = router;

@@ -1,0 +1,64 @@
+<% layout("./layouts/boilerplate") %>
+
+<h1>Register:</h1>
+<form action="/users/register" method="post" class="needs-validation" novalidate>
+    <div class="my-3 row">
+        <div class="col-6">
+            <label for="username" class="form-label">Username:</label>
+            <input required type="text" name="user[username]" class="form-control" id="username"
+                aria-describedby="usernameHelp">
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+            <div class="invalid-feedback">
+                Please choose a username.
+            </div>
+        </div>
+        <div class="col-6">
+            <label for="password" class="form-label">Password:</label>
+            <input required type="text" name="user[password]" class="form-control" id="password"
+                aria-describedby="passwordHelp">
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+            <div class="invalid-feedback">
+                Please choose a password.
+            </div>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <div class="col-6">
+            <label for="firstname" class="form-label">First Name:</label>
+            <input required type="text" name="user[firstname]" class="form-control" id="firstname">
+        </div>
+        <div class="col-6">
+            <label for="lastname" class="form-label">Name:</label>
+            <input required type="text" step="0.01" name="user[name]" class="form-control" id="name">
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Sing Up!</button>
+    <a class="btn btn-danger" href="/campgrounds">Cancel</a>
+</form>
+
+<script>
+    //for Bootstrap custom Client-Side validation
+    (() => {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        const forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>

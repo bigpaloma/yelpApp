@@ -1,81 +1,47 @@
-const mongoose = require('mongoose');
-mongoose.connect('mongodb://127.0.0.1:27017/yelpApp')
-    .then(() => {
-        console.log("MONGO CONNECTION OPEN!!!")
-    })
-    .catch(err => {
-        console.log("OH NO CONNECTION ERROR!!!")
-        console.log(err)
-    })
-
-
-const Blog = require("./subreddit")
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+mongoose
+  .connect("mongodb://127.0.0.1:27017/yelpApp")
+  .then(() => {
+    console.log("MONGO CONNECTION OPEN!!!");
+  })
+  .catch((err) => {
+    console.log("OH NO CONNECTION ERROR!!!");
+    console.log(err);
+  });
 
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
-    username: String,
-    firstname: String,
-    lastname: String,
-    addresses: [{
-        _id: { _id: false },
-        street: String,
-        city: String,
-        zip: String,
-    }],
-    subreddits: [{ type: Schema.Types.ObjectId, ref: "Blog" }]
+  username: {
+    type: String,
+    required: [true, "username is required"],
+  },
+  firstname: {
+    type: String,
+    required: [true, "firstname is required"],
+  },
+  name: {
+    type: String,
+    required: [true, "name is required"],
+  },
+  password: {
+    type: String,
+    required: [true, "password is required"],
+  },
 });
 
-const User = mongoose.model('User', userSchema);
-
-const newUser = async () => {
-    const u = await new User({
-        username: "bigpaloma",
-        firstname: "Furkan",
-        lastname: "Senguen",
-        addresses: [{
-            street: "Violaweg",
-            city: "Kaiseraugst",
-            zip: "4303"
-        }]
-    })
-    const res = await u.save()
-    // console.log(res);
-}
-
-const addAddress = async (id, street, city, zip) => {
-    const user = await User.findById(id);
-    await user.addresses.push({
-        street: street,
-        city: city,
-        zip: zip,
-    })
-    const updatedUser = await user.save();
-    console.log(updatedUser);
-}
-
-// newUser()
-
-// addAddress("64ce78405fb2d2b281984178", "Duggingerhof", "Basel", "4053")
-
-const subscribe = async () => {
-    const user = await User.findOne({ username: "bigpaloma" });
-    console.log("****************", user);
-    const sub = await Blog.findOne({ name: "Leckermalane" });
-    console.log("****************", sub);
-    await user.subreddits.push(sub);
-    console.log("****************", user);
-    await user.save();
-    console.log("***************", user);
+userSchema.statics.findAndValidate = async function (username, password) {
+  const user = await this.findOne({ username });
+  const validPassword = await bcrypt.compare(password, user.password);
+  return validPassword ? user : false;
 };
 
-// subscribe();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  //   this.password = "HIJACKED!";
+  next();
+});
 
-const del = async () => {
-    const found = await User.findByIdAndDelete("64ce78dda2f94a42808dcce7");
-    console.log(found);
-}
-
-// del()
-
-User.findOne({ username: "bigpaloma" }).populate("subreddits").then(user => console.log(user.subreddits));
+module.exports = mongoose.model("User", userSchema);
