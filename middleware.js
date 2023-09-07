@@ -41,8 +41,8 @@ module.exports.validateCampgroundData = (req, res, next) => {
 
 module.exports.isOwner = async (req, res, next) => {
   const { id } = req.params;
-  const campground = await Campgrounds.findById(id);
-  if(!campground.owner.equals(req.user._id)) {
+  const campground = await Campgrounds.findById(id).populate("owner");
+  if(!campground.owner.id.equals(req.user._id)) {
     req.flash("error", "You do not have persmission to do that!")
     return res.redirect(`/campgrounds/${campground.id}`);
   }

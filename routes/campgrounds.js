@@ -3,12 +3,9 @@ const app = express();
 const router = express.Router();
 const session = require("express-session");
 const flash = require("express-flash");
-const Campgrounds = require("../models/campgrounds");
-const User = require("../models/user");
 const asyncErr = require("../errors/asyncErr");
-const AppError = require("../errors/appError");
 const { validateCampgroundData, isOwner, isLoggedIn } = require("../middleware");
-const {newCampground} = require("../controllers/campgrounds")
+const campgrounds = require("../controllers/campgrounds")
 
 app.use(
   session({
@@ -20,69 +17,17 @@ app.use(
 
 app.use(flash());
 
-router.get(
-  "/",
-  asyncErr(async (req, res) => {
-    const campgrounds = await Campgrounds.find({});
-    res.render("campgrounds/index", { campgrounds });
-  })
-);
+router.route("/")
+  .get(asyncErr(campgrounds.index))
+  .post(validateCampgroundData, isLoggedIn, asyncErr(campgrounds.newCampground));
 
-router.get("/new", isLoggedIn, isOwner, (req, res) => {
-  res.render("campgrounds/new");
-});
+router.get("/new", isLoggedIn, campgrounds.newPage);
 
-router.post(
-  "/",
-  validateCampgroundData,
-  isLoggedIn, 
-  asyncErr()
-);
+router.route("/:id")
+  .get(asyncErr(campgrounds.showPage))
+  .patch(isLoggedIn, isOwner, validateCampgroundData, asyncErr(campgrounds.updateCampground))
+  .delete(isLoggedIn, isOwner, asyncErr(campgrounds.deleteCampground));
 
-router.get(
-  "/:id",
-  asyncErr(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campgrounds.findById(id).populate({path: "reviews", populate: {path: "owner"}}).populate("owner");
-    res.render("campgrounds/show", {
-      campground
-    });
-  })
-);
-
-router.get(
-  "/:id/edit",
-  isLoggedIn,
-  isOwner,
-  asyncErr(async (req, res) => {
-      const { id } = req.params;
-      const campground = await Campgrounds.findById(id);
-      res.render("campgrounds/edit", { campground });
-  })
-);
-
-router.patch(
-  "/:id/",
-  isLoggedIn,
-  isOwner, 
-  validateCampgroundData,
-  asyncErr(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campgrounds.findByIdAndUpdate(id, req.body.campground);
-    req.flash("success", "Successfully updated your Listing.")
-    res.redirect(`/campgrounds/${campground.id}`);
-  })
-);
-
-router.delete(
-  "/:id/",
-  isLoggedIn,
-  isOwner, 
-  asyncErr(async (req, res) => {
-    const { id } = req.params;
-    await Campgrounds.findByIdAndDelete(id);
-    res.redirect("/campgrounds");
-  })
-);
+router.get("/:id/edit", isLoggedIn, isOwner, asyncErr(campgrounds.editPage));
 
 module.exports = router;
