@@ -6,18 +6,8 @@ const flash = require("express-flash");
 
 const Campgrounds = require("../models/campgrounds");
 const Reviews = require("../models/review")
-const { joiSchemaReview } = require("../joiSchemas/campgroundData.js");
-
+const {validateReviewData, isLoggedIn, isOwner, isReviewOwner} = require("../middleware");
 const asyncErr = require("../errors/asyncErr");
-
-const validateReviewData = (req, res, next) => {
-    const { error } = joiSchemaReview.validate(req.body);
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',')
-        throw new AppError(msg, 400)
-    }
-    next()
-}
 
 app.use(session({
     secret: 'secretphrase',
@@ -33,25 +23,26 @@ app.use((req,res,next) => {
     next();
 })
 
-router.post("", validateReviewData, asyncErr(async (req, res) => {
+router.post("/", isLoggedIn, validateReviewData, asyncErr(async (req, res) => {
     const { id } = req.params;
-    const createdReview = await Reviews.create(req.body.review);
-    const campground = await Campgrounds.findById(id); 0
-    campground.reviews.push(createdReview);
-    createdReview.save();
+    const review = new Reviews(req.body.review);
+    review.owner = req.user.id;
+    const campground = await Campgrounds.findById(id);
+    campground.reviews.push(review);
+    review.save();
     campground.save();
     req.flash('success', 'Review created');
     res.redirect(`/campgrounds/${campground.id}`);
     //  res.redirect(`/reviews/campgrounds/${campground.id}/reviews/new`);
 }))
 
-router.get("/new", asyncErr(async (req, res) => {
+router.get("/new", isLoggedIn, asyncErr(async (req, res) => {
     const { id } = req.params;
     const campground = await Campgrounds.findById(id);
-    res.render("reviews/new", { campground, messages: req.flash('success') });
+    res.render("reviews/new", { campground });
 }))
 
-router.delete("/:reviewId", asyncErr(async (req, res) => {
+router.delete("/:reviewId", isLoggedIn, isReviewOwner, asyncErr(async (req, res) => {
     const { id, reviewId } = req.params;
     await Campgrounds.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
     await Reviews.findByIdAndDelete(reviewId);

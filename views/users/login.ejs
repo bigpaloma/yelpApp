@@ -1,11 +1,11 @@
 <% layout("./layouts/boilerplate") %>
 
 <h1>Login:</h1>
-<form action="/users/login" method="post" class="needs-validation" novalidate>
+<form action="/login" method="post" class="needs-validation" novalidate>
     <div class="my-3 row">
         <div class="col-6">
             <label for="username" class="form-label">Username:</label>
-            <input required type="text" name="user[username]" class="form-control" id="username"
+            <input required type="text" name="username" class="form-control" id="username"
                 aria-describedby="usernameHelp">
             <div class="valid-feedback">
                 Looks good!
@@ -16,7 +16,7 @@
         </div>
         <div class="col-6">
             <label for="password" class="form-label">Password:</label>
-            <input required type="text" name="user[password]" class="form-control" id="password"
+            <input required type="text" name="password" class="form-control" id="password"
                 aria-describedby="passwordHelp">
             <div class="valid-feedback">
                 Looks good!

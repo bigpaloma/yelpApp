@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-4;
 
 const path = require("path");
 const ejsMate = require("ejs-mate");
@@ -54,18 +53,19 @@ app.use(
 
 app.use(flash());
 
-app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  next();
-});
-
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new passportLocal(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.user = req.user;
+  next();
+});
 
 app.get("/", (req, res) => {
   res.render("home");
@@ -74,7 +74,7 @@ app.get("/", (req, res) => {
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/reviews", reviewRoutes);
 app.use("/secret", secretRoutes);
-app.use("/users", userRoutes);
+app.use("/", userRoutes);
 
 app.all("*", (req, res, next) => {
   req.flash("error", "The Page you are looking for could not be found ");

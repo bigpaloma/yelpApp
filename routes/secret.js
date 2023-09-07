@@ -4,13 +4,7 @@ const session = require("express-session");
 const app = express();
 
 const AppError = require("../errors/appError");
-
-const isLoggedIn = (req, res, next) => {
-  if (!req.session.user_id) {
-    return res.render("users/login");
-  }
-  next();
-};
+const {isLoggedIn} = require("../middleware");
 
 app.use(
   session({

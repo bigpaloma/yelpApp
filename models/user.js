@@ -20,6 +20,9 @@ const UserSchema = new Schema({
     required: true,
     unique: true,
   },
+  campgrounds: [{
+    type: Schema.Types.ObjectId, ref: "Campground"
+  }]
 });
 
 UserSchema.plugin(passportLocalMongoose);
