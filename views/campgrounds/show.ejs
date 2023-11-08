@@ -3,7 +3,8 @@
 <% const reviews = campground.reviews %>
 <% const pluck = (arr, key) => arr.map(i => i[key]); %>
 <% const ratingsArr = pluck(reviews,"rating"); %>
-<% avgRating = ratingsArr.reduce((a, b) => a+b, 0) / ratingsArr.length %>
+<% avgRatingFloat = ratingsArr.reduce((a, b) => a+b, 0) / ratingsArr.length %>
+<% avgRating = Math.ceil(avgRatingFloat) %>
 <% } %>
 <% if(!avgRating) { %>
 <% avgRating = 0 %>
@@ -16,11 +17,38 @@
         <div class="col-6 offset-3">
             <% } %>
             <div class="card mb-3">
-                <img src="<%= campground.image%>" class="card-img-top">
+                <div id="carouselExampleIndicators" class="carousel slide">
+                    <div class="carousel-indicators">
+                        <% campground.images.forEach((image, i) => { %>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="<%= i %>"
+                            class="<%= i === 0 ? "active" : "" %>" aria-current="true"
+                            aria-label="Slide <%= i+1 %>"></button>
+                        <% }) %>
+                    </div>
+                    <div class="carousel-inner">
+                        <% campground.images.forEach((image, i) => { %>
+                        <div class="carousel-item <%= i === 0 ? "active" : "" %>">
+                            <img src="<%= image.url %>" class="d-block w-100">
+                        </div>
+                        <% }) %>
+                    </div>
+                    <% if(campground.images.length > 1) {%>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    <% } %>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title"><%= campground.name%><input class="rating ratingAvg" max="5" readonly
-                            step="0.01" style="--fill:#777;--value:<%= avgRating %>" type="range"
-                            value="<%= avgRating %>"></h5>
+                    <h5 class="card-title"><%= campground.name%>
+                        <p class="starability-result " data-rating="<%= avgRating %>"></p>
+                    </h5>
                     <li class="list-group-item text-muted"><%= campground.location%></li>
                 </div>
                 <ul class="list-group list-group-flush">
@@ -61,8 +89,7 @@
             <% for(review of reviews) { %>
             <div class="card mb-3">
                 <div class="card-header">
-                    <input class="rating" max="5" readonly step="0.01" style="--fill:#777;--value:<%= review.rating %>"
-                        type="range" value="<%= review.rating %>">
+                    <p class="starability-result " data-rating="<%= review.rating %>"></p>
                 </div>
                 <div class="card-body">
                     <h5 class="card-title"><%= review.text %></h5>

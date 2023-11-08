@@ -2,7 +2,8 @@
 <div class="row">
     <h1 class="text-center">Edit your Listing:</h1>
     <div class="col-6 offset-3">
-        <form action="/campgrounds/<%=campground._id%>?_method=PATCH" method="POST" novalidate class="needs-validation">
+        <form action="/campgrounds/<%=campground._id%>?_method=PATCH" method="POST" novalidate class="needs-validation"
+            enctype="multipart/form-data">
             <div class="mb-3">
                 <label class="form-label" for="name">Name:</label>
                 <input required class="form-control" type="text" id="name" name="campground[name]"
@@ -14,9 +15,8 @@
                     value="<%=campground.location %>">
             </div>
             <div class="mb-3">
-                <label class="form-label" for="image">Image Url:</label>
-                <input required class="form-control" type="text" id="image" name="campground[image]"
-                    value="<%=campground.image %>">
+                <label class="form-label" for="image">Images:</label>
+                <input class="form-control" type="file" name="image" id="image" multiple>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="price">Campground Price:</label>
@@ -36,6 +36,16 @@
                 <button class="btn btn-info">Update Campground</button>
             </div>
         </form>
+        <% for(let image of campground.images) { %>
+        <div class="container">
+            <p><%= image.filename %></p>
+            <img src="<%= image.url %>" alt="" class="img-fluid mb-2" style="max-width:20%">
+            <form class="d-inline" action="/campgrounds/<%=campground._id%>/<%= image.filename %>?_method=DELETE"
+                method="POST">
+                <button class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+        <% } %>
         <a href="/campgrounds/<%= campground._id%>">Cancel</a>
 
     </div>

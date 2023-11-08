@@ -3,7 +3,7 @@ const Campgrounds = require("./models/campgrounds");
 const Reviews = require("./models/review");
 const { joiSchemaReview } = require("./joiSchemas/campgroundData.js");
 const { userSchemaCampground } = require("./joiSchemas/campgroundData.js");
-
+const AppError = require("./errors/appError.js")
 
 module.exports.isLoggedIn = (req, res, next) => {
     if(!req.isAuthenticated()) {
@@ -42,7 +42,7 @@ module.exports.validateCampgroundData = (req, res, next) => {
 module.exports.isOwner = async (req, res, next) => {
   const { id } = req.params;
   const campground = await Campgrounds.findById(id).populate("owner");
-  if(!campground.owner.id.equals(req.user._id)) {
+  if(campground.owner.id.str !== req.user._id.str ) {
     req.flash("error", "You do not have persmission to do that!")
     return res.redirect(`/campgrounds/${campground.id}`);
   }

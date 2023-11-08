@@ -1,16 +1,17 @@
 const mongoose = require('mongoose');
 const Review = require("./review")
-const User = require("./user")
-const Schema = mongoose.Schema;
+const {cloudinary} = require("../cloudinary");
+const Schema = mongoose.Schema;     
 
 const campgroundsSchema = new Schema({
     name: {
         type: String,
         // required: true,
     },
-    image: {
-        type: String
-    },
+    images: [{
+        url: String,
+        filename: String
+    }],
     price: {
         type: Number,
         // required: true,
@@ -38,7 +39,16 @@ campgroundsSchema.post("findOneAndDelete", async function(doc) {
             $in: doc.reviews
         }
     })
+    for(let i = 0; i < doc.images.length; i++) {
+        let image = doc.images[i]
+        console.log(image.filename)
+        await cloudinary.uploader.destroy(image.filename)
     }
+    // console.log(doc.images.length)
+    // console.log(doc.images[1])
+    // const aha = doc.images[1]
+    // console.log(aha["filename"])
+}
 });
 
 module.exports = mongoose.model('Campground', campgroundsSchema);
